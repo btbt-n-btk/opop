@@ -25,11 +25,14 @@
     </div>
 
     <!-- SVGにviewBoxを設定してアスペクト比を固定 -->
-    <svg width="600" height="600" viewBox="-15 -5 30 20" preserveAspectRatio="xMidYMid meet"></svg>
+    <svg width="600" height="600" viewBox="-15 0 30 15" preserveAspectRatio="xMidYMid meet"></svg>
 
     <script>
         const svg = d3.select("svg");
-        const path = svg.append("path").attr("fill", "pink").attr("stroke", "pink");
+        const path = svg.append("path")
+            .attr("fill", "pink")
+            .attr("stroke", "pink")
+            .attr("stroke-width", "0.5");  // 線を細くする
 
         function update() {
             const topUnder = +document.getElementById("topUnder").value;
@@ -44,11 +47,9 @@
             const x = theta.map(t => (t - Math.sin(D * t)) / maxX * 13);
             const y = theta.map(t => oppai * (1 - Math.cos(t)));
 
-            const yMax = 2 * oppai + 3;
-
             const line = d3.line()
                 .x((d, i) => x[i])
-                .y((d, i) => -y[i]); // Y軸の向きをPythonと合わせる
+                .y((d, i) => -y[i] + 2 * oppai + 1);  // Y軸が負にならないよう調整
 
             path.attr("d", line(y));
         }
