@@ -33,36 +33,31 @@
               margin = { top: 30, right: 30, bottom: 30, left: 30 };
 
         const xScale = d3.scaleLinear().domain([-13, 13]).range([margin.left, width - margin.right]);
-
-        let topUnder = 35;
-        let D = 1;
+        const path = svg.append("path").attr("fill", "pink").attr("stroke", "pink");
 
         function update() {
-            topUnder = +document.getElementById("topUnder").value;
-            D = +document.getElementById("D").value;
+            const topUnder = +document.getElementById("topUnder").value;
+            const D = +document.getElementById("D").value;
             document.getElementById("topUnderValue").innerText = topUnder;
             document.getElementById("DValue").innerText = D;
 
             const oppai = topUnder / (4 * Math.PI);
-            const theta = d3.range(-2 * Math.PI, 2 * Math.PI, 0.001);
-            
-            const x = theta.map(t => (t - Math.sin(D * t)) / Math.max(...theta.map(t => t - Math.sin(D * t))) * 13);
+            const theta = d3.range(-2 * Math.PI, 2 * Math.PI, 0.01); // データ数を削減
+
+            // 事前に maxX を計算しておく（無駄な計算を削減）
+            const maxX = Math.max(...theta.map(t => t - Math.sin(D * t)));
+            const x = theta.map(t => (t - Math.sin(D * t)) / maxX * 13);
             const y = theta.map(t => oppai * (1 - Math.cos(t)));
 
             const yMax = 2 * oppai + 3;
             const yScale = d3.scaleLinear().domain([0, yMax]).range([height - margin.bottom, margin.top]);
 
-            svg.selectAll("*").remove();
-
             const line = d3.line()
                 .x((d, i) => xScale(x[i]))
                 .y((d, i) => yScale(y[i]));
 
-            svg.append("path")
-                .datum(y)
-                .attr("fill", "pink")
-                .attr("stroke", "pink")
-                .attr("d", line);
+            // 全削除せずに、path を更新するだけ
+            path.attr("d", line(y));
         }
 
         document.getElementById("topUnder").addEventListener("input", update);
@@ -72,3 +67,4 @@
     </script>
 </body>
 </html>
+
