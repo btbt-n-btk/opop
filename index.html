@@ -24,15 +24,11 @@
         <span id="DValue">1</span>
     </div>
 
-    <svg width="600" height="500"></svg>
+    <!-- SVGにviewBoxを設定してアスペクト比を固定 -->
+    <svg width="600" height="600" viewBox="-15 -5 30 20" preserveAspectRatio="xMidYMid meet"></svg>
 
     <script>
-        const svg = d3.select("svg"),
-              width = +svg.attr("width"),
-              height = +svg.attr("height"),
-              margin = { top: 30, right: 30, bottom: 30, left: 30 };
-
-        const xScale = d3.scaleLinear().domain([-13, 13]).range([margin.left, width - margin.right]);
+        const svg = d3.select("svg");
         const path = svg.append("path").attr("fill", "pink").attr("stroke", "pink");
 
         function update() {
@@ -42,21 +38,18 @@
             document.getElementById("DValue").innerText = D;
 
             const oppai = topUnder / (4 * Math.PI);
-            const theta = d3.range(-2 * Math.PI, 2 * Math.PI, 0.01); // データ数を削減
+            const theta = d3.range(-2 * Math.PI, 2 * Math.PI, 0.01);
 
-            // 事前に maxX を計算しておく（無駄な計算を削減）
             const maxX = Math.max(...theta.map(t => t - Math.sin(D * t)));
             const x = theta.map(t => (t - Math.sin(D * t)) / maxX * 13);
             const y = theta.map(t => oppai * (1 - Math.cos(t)));
 
             const yMax = 2 * oppai + 3;
-            const yScale = d3.scaleLinear().domain([0, yMax]).range([height - margin.bottom, margin.top]);
 
             const line = d3.line()
-                .x((d, i) => xScale(x[i]))
-                .y((d, i) => yScale(y[i]));
+                .x((d, i) => x[i])
+                .y((d, i) => -y[i]); // Y軸の向きをPythonと合わせる
 
-            // 全削除せずに、path を更新するだけ
             path.attr("d", line(y));
         }
 
@@ -67,4 +60,3 @@
     </script>
 </body>
 </html>
-
